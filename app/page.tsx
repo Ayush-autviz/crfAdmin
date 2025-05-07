@@ -13,10 +13,10 @@ export default function Home() {
   useEffect(() => {
     if (!user) {
       // User exists, navigate to main screen
-      router.push("/main");
+      router.push("/main/CourseManagement");
     } else {
       // No user, navigate to login screen
-      router.push("/login");
+      router.push("/auth/Login");
     }
   }, [user, router]);
 

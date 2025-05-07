@@ -28,7 +28,7 @@ export default function RootLayout({
       <body className={`${montserrat.variable} antialiased bg-[#0A0F1D]`}>
         <QueryProvider>
         {children}
-        <Toaster />
+        <Toaster richColors />
         </QueryProvider>
       </body>
     </html>

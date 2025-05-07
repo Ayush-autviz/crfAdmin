@@ -40,10 +40,8 @@ import { createCourse, deleteCourse, fetchCourses } from '@/lib/ApiService';
 interface Course {
   id: string;
   title: string;
-  category: string;
-  level: string;
-  duration: string;
-  lectureCount: number;
+  description:string;
+  video_count: number;
 }
 
 
@@ -238,7 +236,7 @@ export default function AdminDashboard() {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card className="bg-[#162033] shadow-lg">
           <CardHeader className="mb-0">
             <CardTitle className="text-2xl text-white font-bold">
@@ -257,11 +255,11 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl text-[#F6BE00] font-bold">
-              {courses.reduce((total, course) => total + course.lectureCount, 0)}
+              {courses.reduce((total, course) => total + course.video_count, 0)}
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-[#162033] shadow-lg">
+        {/* <Card className="bg-[#162033] shadow-lg">
           <CardHeader className="">
             <CardTitle className="text-2xl text-white font-bold">
               Total Content Duration
@@ -270,7 +268,7 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="text-2xl text-[#F6BE00] font-bold">10h 30m</div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
       <Card className="bg-[#162033] shadow-lg">
@@ -282,9 +280,9 @@ export default function AdminDashboard() {
             <TableHeader>
               <TableRow className="hover:bg-[#334155]">
                 <TableHead className="text-white">Title</TableHead>
-                <TableHead className="text-white">Category</TableHead>
+                {/* <TableHead className="text-white">Category</TableHead>
                 <TableHead className="text-white">Level</TableHead>
-                <TableHead className="text-white">Duration</TableHead>
+                <TableHead className="text-white">Duration</TableHead> */}
                 <TableHead className="text-white">Lectures</TableHead>
                 <TableHead className="text-right text-white">Actions</TableHead>
               </TableRow>
@@ -293,10 +291,10 @@ export default function AdminDashboard() {
               {courses.map((course) => (
                 <TableRow key={course.id} className="hover:bg-[#334155]">
                   <TableCell className="font-medium text-white">{course.title}</TableCell>
-                  {/* <TableCell className='text-white'>{course?.category}</TableCell>
+                   {/* <TableCell className='text-white'>{course?.category}</TableCell>
                   <TableCell className='text-white'>{course?.level}</TableCell>
-                  <TableCell className='text-white'>{course?.duration}</TableCell>
-                  <TableCell className='text-white'>{course?.lectureCount}</TableCell> */}
+                  <TableCell className='text-white'>{course?.duration}</TableCell> */}
+                  <TableCell className='text-white'>{course?.video_count || 0 }</TableCell> 
                   <TableCell className="text-right space-x-2">
                     <Button
                       variant="ghost"
