@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
-import Link from "next/link"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Eye, EyeOff } from "lucide-react"
 import { Input } from "@/components/ui/input"
@@ -12,6 +11,9 @@ import { loginUser } from "@/lib/ApiService"
 import useAuthStore from "@/stores/authStore"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { loginSchema } from "@/lib/validations"
+import { validateForm } from "@/lib/validateForm"
+import { FormError } from "@/components/ui/form-error"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -20,8 +22,20 @@ export default function LoginPage() {
     email: "",
     password: "",
   })
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const [isLoading, setIsLoading] = useState(true)
 
-  const { setAuth } = useAuthStore()
+  const { setAuth, user } = useAuthStore()
+
+  // Check if user is already logged in
+  useEffect(() => {
+    if (user) {
+      // User is already logged in, redirect to main page
+      router.push('/main/CourseManagement')
+    } else {
+      setIsLoading(false)
+    }
+  }, [user, router])
 
   const mutation = useMutation({
     mutationFn: loginUser,
@@ -37,9 +51,24 @@ export default function LoginPage() {
     },
     onError: (error: any) => {
       console.error("Login failed:", error)
-      // Show error toast
+
+      // Default error message
+      let errorMessage = "Invalid email or password. Please try again.";
+
+      // Use error.response.data.error for the toast description if available
+      if (error.response && error.response.data && error.response.data.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.request) {
+        // The request was made but no response was received
+        errorMessage = "No response from server. Please check your internet connection.";
+      } else if (error.message) {
+        // Something happened in setting up the request that triggered an Error
+        errorMessage = error.message;
+      }
+
+      // Show error toast with the appropriate message
       toast.error("Login Failed", {
-        description: error.message || "Invalid email or password. Please try again.",
+        description: errorMessage,
         duration: 5000,
       })
     },
@@ -52,8 +81,21 @@ export default function LoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Form submission prevented")
-    console.log("Login data:", formData)
+
+    // Clear previous errors
+    setFormErrors({})
+
+    // Validate form data using Zod
+    const validation = validateForm(loginSchema, formData);
+
+    if (!validation.success) {
+      // Set form errors
+      if (validation.errors) {
+        setFormErrors(validation.errors);
+      }
+      return;
+    }
+
     try {
       mutation.mutate(formData)
     } catch (error) {
@@ -63,6 +105,21 @@ export default function LoginPage() {
         duration: 5000,
       })
     }
+  }
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-[#0A0F1D]">
+        <div className="text-center">
+          <div className="mb-4 flex justify-center">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#F6BE00] border-t-transparent"></div>
+          </div>
+          <h2 className="text-xl font-semibold text-white">Checking authentication...</h2>
+          <p className="mt-2 text-[#A4A4A4]">Please wait while we verify your credentials</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -90,9 +147,10 @@ export default function LoginPage() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Enter your email"
-                  className="bg-[#1E2634] rounded-[10px] px-4 md:px-8 py-3 md:py-4 border-[#323D50] text-white placeholder:text-gray-500"
+                  className={`bg-[#1E2634] rounded-[10px] px-4 md:px-8 py-3 md:py-4 border-[#323D50] text-white placeholder:text-gray-500 ${formErrors.email ? 'border-red-500' : ''}`}
                   required
                 />
+                <FormError message={formErrors.email} />
               </div>
 
               <div className="space-y-1 md:space-y-2">
@@ -107,7 +165,7 @@ export default function LoginPage() {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="••••••"
-                    className="bg-[#1E2634] rounded-[10px] px-4 md:px-8 py-3 md:py-4 border-[#323D50] text-white placeholder:text-gray-500 pr-10"
+                    className={`bg-[#1E2634] rounded-[10px] px-4 md:px-8 py-3 md:py-4 border-[#323D50] text-white placeholder:text-gray-500 pr-10 ${formErrors.password ? 'border-red-500' : ''}`}
                     required
                   />
                   <button
@@ -118,6 +176,7 @@ export default function LoginPage() {
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
+                <FormError message={formErrors.password} />
               </div>
 
               {/* <div className="flex justify-end">

@@ -1,28 +1,53 @@
 "use client"
-import { useState } from "react"
-import { LogOut, Search, User } from "lucide-react"
+import { useState, useEffect } from "react"
+import { LogOut, User } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
-//import useAuthStore from "@/stores/authStore"
+import { useRouter, usePathname } from "next/navigation"
+import useAuthStore from "@/stores/authStore"
+import { toast } from "sonner"
+import { Input } from "./ui/input"
 
 
 export function Header() {
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [profileImage, setProfileImage] = useState("/placeholder.svg?height=32&width=32")
   const [userName, setUserName] = useState("User Name");
+  const [pageTitle, setPageTitle] = useState("");
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Update page title based on current route
+  useEffect(() => {
+    if (pathname.includes('/main/CourseManagement')) {
+      setPageTitle("Manage Courses");
+    } else if (pathname.includes('/main/CoachManagement')) {
+      setPageTitle("Manage Coach");
+    } else if (pathname.includes('/main/UserManagement')) {
+      setPageTitle("Manage Users");
+    } else {
+      setPageTitle("Dashboard");
+    }
+  }, [pathname]);
+
   const handleLogout = () => {
-    //   const clearAuth = useAuthStore.getState().clearAuth;
-    //   clearAuth();
-    //   router.push('/auth/login'); 
+    // Get the clearAuth function from the store
+    const clearAuth = useAuthStore.getState().clearAuth;
+    // Clear the authentication state
+    clearAuth();
+    // Show success toast
+    toast.success("Logged out successfully", {
+      description: "You have been logged out of your account",
+      duration: 3000,
+    });
+    // Redirect to login page
+    router.push('/auth/Login');
   }
 
   return (
@@ -31,16 +56,13 @@ export function Header() {
         <div className="flex items-center gap-2 md:hidden">
           <SidebarTrigger />
         </div>
-        <div className="flex w-full max-w-md font-semibold items-center rounded-full text-white bg-[#334155] px-3 py-1">
-          <Search className="h-5 w-5 text-white" />
-          <Input
-            type="search"
-            placeholder="Search..."
-            className="border-0 bg-transparent placeholder:text-white text-white text-sm font-semibold focus-visible:ring-0 focus-visible:ring-offset-0"
-          />
+        <div className="flex w-full max-w-md font-semibold items-center text-white">
+          <h1 className="text-2xl font-bold text-white tracking-tight">
+            {pageTitle}
+          </h1>
         </div>
         <div className="flex items-center gap-4">
-          <Button
+          {/* <Button
             variant="default"
             size="sm"
             className="hidden bg-[#F6BE00] text-black rounded-[10px] gap-2 hover:bg-[#F6BE00] md:flex"
@@ -54,7 +76,7 @@ export function Header() {
             className="text-muted-foreground hover:bg-transparent border rounded-full border-[#5C5C5C]"
           >
             <Image src="/bell.svg" alt="phone" width={16} height={16} />
-          </Button>
+          </Button> */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="h-8 w-8 cursor-pointer">
