@@ -45,6 +45,7 @@ import {
 import { validateForm, validateFileUpload } from '@/lib/validateForm';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoModal } from '@/components/VideoModal';
+import { FormError } from '@/components/ui/form-error';
 
 // Interface for lecture data from API
 interface Lecture {
@@ -102,6 +103,7 @@ export default function CourseEditor() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [lectureThumbnailFile, setLectureThumbnailFile] = useState<File | null>(null);
   const [lectureThumbnailPreview, setLectureThumbnailPreview] = useState<string | null>(null);
+  const [lectureFormErrors, setLectureFormErrors] = useState<Record<string, string>>({});
 
   // Edit lecture state
   const [editLectureId, setEditLectureId] = useState<string>('');
@@ -195,6 +197,7 @@ export default function CourseEditor() {
       setNewLectureDescription('');
       setVideoFile(null);
       setLectureThumbnailFile(null);
+      setLectureFormErrors({});
 
       toast.success('Lecture Added', {
         description: 'The new lecture has been added to the course.',
@@ -411,13 +414,29 @@ export default function CourseEditor() {
   // };
 
   const handleCreateLecture = () => {
+    console.log("handleCreateLecture called");
+
+    // Clear previous errors
+    setLectureFormErrors({});
+
+    // Check if required fields are present
+    const errors: Record<string, string> = {};
+    if (!newLectureTitle) errors.title = 'Title is required';
+    if (!videoFile) errors.file = 'Video file is required';
+    if (!lectureThumbnailFile) errors.thumbnail = 'Thumbnail is required';
+
+    if (Object.keys(errors).length > 0) {
+      setLectureFormErrors(errors);
+      return;
+    }
+
     // Validate video file
     if (videoFile) {
       const videoValidation = validateFileUpload(videoFile, MAX_VIDEO_SIZE, ALLOWED_VIDEO_TYPES);
-      if (!videoValidation.valid) {
-        toast.error('Video File Error', {
-          description: videoValidation.error,
-        });
+      if (!videoValidation.valid && videoValidation.error) {
+        const newErrors = { ...lectureFormErrors };
+        newErrors.file = videoValidation.error;
+        setLectureFormErrors(newErrors);
         return;
       }
     }
@@ -425,17 +444,20 @@ export default function CourseEditor() {
     // Validate thumbnail file
     if (lectureThumbnailFile) {
       const thumbnailValidation = validateFileUpload(lectureThumbnailFile, MAX_IMAGE_SIZE, ALLOWED_IMAGE_TYPES);
-      if (!thumbnailValidation.valid) {
-        toast.error('Thumbnail Error', {
-          description: thumbnailValidation.error,
-        });
+      if (!thumbnailValidation.valid && thumbnailValidation.error) {
+        const newErrors = { ...lectureFormErrors };
+        newErrors.thumbnail = thumbnailValidation.error;
+        setLectureFormErrors(newErrors);
         return;
       }
     }
 
+    // Make sure courseId is a string
+    const courseIdString = typeof course.id === 'number' ? course.id.toString() : course.id;
+
     // Validate form data
     const validation = validateForm(addLectureSchema, {
-      courseId: course.id,
+      courseId: courseIdString,
       title: newLectureTitle,
       description: '',
       file: videoFile,
@@ -444,16 +466,34 @@ export default function CourseEditor() {
     });
 
     if (!validation.success) {
-      return; // Errors are already shown as toasts by validateForm
+      console.log("Validation failed:", validation);
+      if (validation.errors) {
+        setLectureFormErrors(validation.errors);
+      }
+      return;
     }
+
+    // At this point, we know videoFile and lectureThumbnailFile are not null
+    // because we've checked them earlier
+    if (!videoFile || !lectureThumbnailFile) {
+      return; // This is just a safeguard for TypeScript
+    }
+
+    console.log("Submitting lecture data:", {
+      courseId: courseIdString,
+      title: newLectureTitle,
+      file: videoFile,
+      thumbnail: lectureThumbnailFile,
+      file_size: videoFile.size,
+    });
 
     // Submit the form if validation passes
     addVideoMutation.mutate({
-      courseId: course.id,
+      courseId: courseIdString,
       title: newLectureTitle,
-      file: videoFile!,
-      thumbnail: lectureThumbnailFile!,
-      file_size: videoFile!.size,
+      file: videoFile,
+      thumbnail: lectureThumbnailFile,
+      file_size: videoFile.size,
     });
   };
 
@@ -898,8 +938,9 @@ export default function CourseEditor() {
                       value={newLectureTitle}
                       onChange={(e) => setNewLectureTitle(e.target.value)}
                       placeholder="Enter lecture title"
-                      className="bg-[#334155] border-0 mt-4 placeholder:text-white"
+                      className={`bg-[#334155] border-0 mt-4 placeholder:text-white ${lectureFormErrors.title ? 'border-red-500' : ''}`}
                     />
+                    <FormError message={lectureFormErrors.title} />
                   </div>
                   <div>
                     <Label htmlFor="lectureDescription">Description</Label>
@@ -917,7 +958,7 @@ export default function CourseEditor() {
                     <div className="flex items-center justify-center w-full mt-4">
                       <label
                         htmlFor="videoFile"
-                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-[#323D50] border-dashed rounded-lg cursor-pointer bg-[#0F1623] hover:bg-[#1F2A3C] transition-colors"
+                        className={`flex flex-col items-center justify-center w-full h-32 border-2 ${lectureFormErrors.file ? 'border-red-500' : 'border-[#323D50]'} border-dashed rounded-lg cursor-pointer bg-[#0F1623] hover:bg-[#1F2A3C] transition-colors`}
                       >
                         {videoFile ? (
                           <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -960,13 +1001,14 @@ export default function CourseEditor() {
                         />
                       </label>
                     </div>
+                    <FormError message={lectureFormErrors.file} />
                   </div>
                   <div>
                     <Label htmlFor="lectureThumbnail">Thumbnail*</Label>
                     <div className="flex items-center justify-center w-full mt-4">
                       <label
                         htmlFor="lectureThumbnail"
-                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-[#323D50] border-dashed rounded-lg cursor-pointer bg-[#0F1623] hover:bg-[#1F2A3C] transition-colors"
+                        className={`flex flex-col items-center justify-center w-full h-32 border-2 ${lectureFormErrors.thumbnail ? 'border-red-500' : 'border-[#323D50]'} border-dashed rounded-lg cursor-pointer bg-[#0F1623] hover:bg-[#1F2A3C] transition-colors`}
                       >
                         {lectureThumbnailPreview ? (
                           <div className="relative w-full h-full">
@@ -1010,6 +1052,7 @@ export default function CourseEditor() {
                         />
                       </label>
                     </div>
+                    <FormError message={lectureFormErrors.thumbnail} />
                   </div>
                 </div>
                 <DialogFooter>
@@ -1050,9 +1093,9 @@ export default function CourseEditor() {
                         Adding Lecture...
                       </span>
                     ) : (
-                      <span className="flex items-center">
+                      <div className="flex items-center">
                         <Plus className="h-5 w-5 mr-2" /> Add Lecture
-                      </span>
+                      </div>
                     )}
                   </Button>
                 </DialogFooter>
