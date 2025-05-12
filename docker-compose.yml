@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  chatbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      # Add any other environment variables your app needs
+    restart: unless-stopped
