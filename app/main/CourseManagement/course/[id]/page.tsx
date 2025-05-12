@@ -46,10 +46,11 @@ import { validateForm, validateFileUpload } from '@/lib/validateForm';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoModal } from '@/components/VideoModal';
 
+// Interface for lecture data from API
 interface Lecture {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   duration?: string;
   videoUrl?: string | null;
   stream_url?: string;
@@ -57,14 +58,16 @@ interface Lecture {
   created_at?: string;
   file_size?: number;
   mime_type?: string;
+  file_url?: string;
 }
 
 interface Course {
   id: string;
   title: string;
   description: string;
-  thumbnail: string | null;
+  thumbnail?: string;
   thumbnail_url?: string;
+  video_count?: number;
 }
 
 export default function CourseEditor() {
@@ -81,7 +84,7 @@ export default function CourseEditor() {
     queryFn: () => fetchCourseById(id),
   });
 
-  const { data: lectures, isLoading, error } = useQuery({
+  const { data: lectures, isLoading, error } = useQuery<Lecture[]>({
     queryKey: ['courseLectures', id],
     queryFn: () => fetchCourseLectures(id!),
     enabled: !!id,
