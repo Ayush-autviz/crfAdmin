@@ -109,9 +109,9 @@ export function Header() {
                 <AvatarImage src={profileImage || "/placeholder.svg"} alt={userName} />
                 <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
               </Avatar>
-              <Button className="bg-[#F6BE00] hover:bg-yellow-600 text-black"  size="sm">
+              {/* <Button className="bg-[#F6BE00] hover:bg-yellow-600 text-black"  size="sm">
                 Change Image
-              </Button>
+              </Button> */}
             </div>
             <div className="grid gap-2 text-white">
               <Label htmlFor="name">Name</Label>

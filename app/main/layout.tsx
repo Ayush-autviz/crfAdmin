@@ -24,6 +24,11 @@ export default function RootLayout({
     if (!user) {
       // No user, redirect to login
       router.push('/auth/Login');
+    } else if (!user.is_admin) {
+      // User is not an admin, redirect to login
+      const clearAuth = useAuthStore.getState().clearAuth;
+      clearAuth(); // Clear auth state
+      router.push('/auth/Login');
     } else {
       setIsLoading(false);
     }

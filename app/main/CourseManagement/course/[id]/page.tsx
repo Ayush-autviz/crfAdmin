@@ -335,7 +335,7 @@ export default function CourseEditor() {
     );
   }
 
-  if (error || courseError || !course?.id) {
+  if (error || courseError ) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh]">
         <AlertCircle className="h-16 w-16 text-red-500 mb-4" />
@@ -802,8 +802,17 @@ export default function CourseEditor() {
                 <Button
                   onClick={handleSaveChanges}
                   className="bg-[#F6BE00] text-black hover:bg-[#F6BE00]"
+                  disabled={updateCourseMutation.isPending}
                 >
-                  Save Changes
+                  {updateCourseMutation.isPending ? (
+                    // <span className="flex items-center">
+                    <>
+                      Saving...
+                      </>
+                    // </span>
+                  ) : (
+                    "Save Changes"
+                  )}
                 </Button>
               </div>
             )}

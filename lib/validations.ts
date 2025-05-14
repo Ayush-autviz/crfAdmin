@@ -40,7 +40,7 @@ export const createCourseSchema = z.object({
     ALLOWED_IMAGE_TYPES,
     {
       size: `Thumbnail must be less than ${MAX_IMAGE_SIZE / (1024 * 1024)}MB`,
-      type: 'Thumbnail must be a valid image file (JPEG, PNG, or GIF)'
+      type: 'Thumbnail must be a valid image file (PNG, JPG or GIF)'
     }
   )
 });
@@ -58,7 +58,7 @@ export const updateCourseSchema = z.object({
     ALLOWED_IMAGE_TYPES,
     {
       size: `Thumbnail must be less than ${MAX_IMAGE_SIZE / (1024 * 1024)}MB`,
-      type: 'Thumbnail must be a valid image file (JPEG, PNG, or GIF)'
+      type: 'Thumbnail must be a valid image file (PNG, JPG or GIF)'
     }
   )
 });
@@ -85,7 +85,7 @@ export const addLectureSchema = z.object({
     ALLOWED_IMAGE_TYPES,
     {
       size: `Thumbnail must be less than ${MAX_IMAGE_SIZE / (1024 * 1024)}MB`,
-      type: 'Thumbnail must be a valid image file (JPEG, PNG, or GIF)'
+      type: 'Thumbnail must be a valid image file (PNG, JPG or GIF)'
     }
   ).refine((file) => !!file, { message: 'Thumbnail is required' }),
   file_size: z.number().optional()
@@ -112,7 +112,7 @@ export const updateLectureSchema = z.object({
     ALLOWED_IMAGE_TYPES,
     {
       size: `Thumbnail must be less than ${MAX_IMAGE_SIZE / (1024 * 1024)}MB`,
-      type: 'Thumbnail must be a valid image file (JPEG, PNG, or GIF)'
+      type: 'Thumbnail must be a valid image file (PNG, JPG or GIF)'
     }
   ),
   file_size: z.number().optional()

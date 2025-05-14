@@ -41,7 +41,20 @@ export default function LoginPage() {
     mutationFn: loginUser,
     onSuccess: (data) => {
       console.log("Login successful:", data)
+
+      // Check if the user is an admin
+      if (!data.user.is_admin) {
+        // User is not an admin, show error toast
+        toast.error("Access Denied", {
+          description: "You are not an admin. Only admins can access this panel.",
+          duration: 5000,
+        })
+        return;
+      }
+
+      // User is an admin, proceed with login
       setAuth(data.access_token, data.user)
+
       // Show success toast
       toast.success("Login Successful", {
         description: "Welcome back! Redirecting to your dashboard...",
@@ -173,7 +186,7 @@ export default function LoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-4 md:right-8 top-1/2 transform -translate-y-1/2 text-gray-400"
                   >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
                   </button>
                 </div>
                 <FormError message={formErrors.password} />

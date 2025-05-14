@@ -11,8 +11,16 @@ export default function Home() {
   useEffect(() => {
     // Check if user is logged in
     if (user) {
-      // User exists, navigate to main screen
-      router.push("/main/CourseManagement");
+      // Check if user is an admin
+      if (user.is_admin) {
+        // User is an admin, navigate to main screen
+        router.push("/main/CourseManagement");
+      } else {
+        // User is not an admin, clear auth and redirect to login
+        const clearAuth = useAuthStore.getState().clearAuth;
+        clearAuth(); // Clear auth state
+        router.push("/auth/Login");
+      }
     } else {
       // No user, navigate to login screen
       router.push("/auth/Login");

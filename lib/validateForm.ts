@@ -67,10 +67,27 @@ export function validateFileUpload(
 
   // Check file type
   if (!allowedTypes.includes(file.type)) {
-    return {
-      valid: false,
-      error: `Invalid file type. Allowed types: ${allowedTypes.map(type => type.replace('image/', '').replace('video/', '')).join(', ')}`
-    };
+    // For image files, use a consistent format
+    if (allowedTypes.includes('image/jpeg') || allowedTypes.includes('image/png')) {
+      return {
+        valid: false,
+        error: `Invalid file type. Allowed types: PNG, JPG or GIF`
+      };
+    }
+    // For video files
+    else if (allowedTypes.includes('video/mp4')) {
+      return {
+        valid: false,
+        error: `Invalid file type. Allowed types: MP4, WebM or OGG`
+      };
+    }
+    // Generic fallback
+    else {
+      return {
+        valid: false,
+        error: `Invalid file type. Allowed types: ${allowedTypes.map(type => type.replace('image/', '').replace('video/', '')).join(', ')}`
+      };
+    }
   }
 
   return { valid: true };

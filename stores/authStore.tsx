@@ -3,11 +3,11 @@ import { persist } from 'zustand/middleware';
 
 interface AuthState {
     token: string | null;
-    user: { id: string; email: string; name: string } | null;
-    setAuth: (token: string, user: { id: string; email: string; name: string }) => void;
+    user: { id: string; email: string; name: string; is_admin?: boolean } | null;
+    setAuth: (token: string, user: { id: string; email: string; name: string; is_admin?: boolean }) => void;
     clearAuth: () => void;
   }
-  
+
 const useAuthStore = create<AuthState>()(
     persist(
       (set) => ({
