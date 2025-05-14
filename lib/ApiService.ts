@@ -28,8 +28,8 @@ interface User {
 }
 
 // Base URL for all API requests
-//const API_BASE_URL = 'http://18.216.181.203:5000/api';
-const API_BASE_URL = 'https://lwj8k3bb-5000.inc1.devtunnels.ms/api';
+const API_BASE_URL = 'http://18.216.181.203:5000/api';
+//const API_BASE_URL = 'https://lwj8k3bb-5000.inc1.devtunnels.ms/api';
 
 // Create a separate axios instance for auth requests (login)
 // This instance doesn't have the 401 interceptor to avoid redirect loops
