@@ -60,7 +60,7 @@ export const updateCourseSchema = z.object({
       size: `Thumbnail must be less than ${MAX_IMAGE_SIZE / (1024 * 1024)}MB`,
       type: 'Thumbnail must be a valid image file (PNG, JPG or GIF)'
     }
-  )
+  ).refine((file) => !!file, { message: 'Thumbnail is required' }),
 });
 
 export type UpdateCourseInput = z.infer<typeof updateCourseSchema>;
