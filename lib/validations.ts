@@ -95,7 +95,7 @@ export type AddLectureInput = z.infer<typeof addLectureSchema>;
 
 // Update Lecture Schema
 export const updateLectureSchema = z.object({
-  videoId: z.string().min(1, 'Video ID is required'),
+  videoId: z.number().min(1, 'Video ID is required'),
   title: z.string().min(1, 'Title is required').max(100, 'Title must be less than 100 characters'),
   file: validateFile(
     undefined,

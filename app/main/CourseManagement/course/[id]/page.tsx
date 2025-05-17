@@ -516,6 +516,7 @@ export default function CourseEditor() {
 
   const handleUpdateLecture = () => {
     // Validate video file if provided
+    console.log("editVideoFile", editVideoFile);
     if (editVideoFile) {
       const videoValidation = validateFileUpload(editVideoFile, MAX_VIDEO_SIZE, ALLOWED_VIDEO_TYPES);
       if (!videoValidation.valid) {
@@ -561,6 +562,7 @@ export default function CourseEditor() {
 
     // Validate form data
     const validation = validateForm(updateLectureSchema, updateData);
+    console.log("validation", validation);
 
     if (!validation.success) {
       return; // Errors are already shown as toasts by validateForm
